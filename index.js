@@ -16,13 +16,38 @@ client.connect((err) => {
   const orderCollection = client
     .db(`${process.env.DB_NAME}`)
     .collection("orders");
-  console.log("database connected");
+  const adminCollection = client
+    .db(`${process.env.DB_NAME}`)
+    .collection("admin");
 
   app.post("/addOrder", (req, res) => {
     const orderDetails = req.body;
-
     orderCollection.insertOne(orderDetails).then((result) => {
       res.send(result.insertedCount > 0);
+    });
+  });
+
+  app.post("/dashboard", (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ email: email }).toArray((err, admins) => {
+      if (admins.length === 0) {
+        orderCollection
+          .find({ email: email })
+          .toArray((errors, filteredOrder) => {
+            res.send(filteredOrder);
+          });
+      } else {
+        orderCollection.find({}).toArray((error, orders) => {
+          res.send(orders);
+        });
+      }
+    });
+  });
+
+  app.post("/isAdmin", (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ email: email }).toArray((err, admins) => {
+      res.send(admins.length > 0);
     });
   });
 });
