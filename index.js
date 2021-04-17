@@ -19,6 +19,9 @@ client.connect((err) => {
   const adminCollection = client
     .db(`${process.env.DB_NAME}`)
     .collection("admin");
+  const reviewCollection = client
+    .db(`${process.env.DB_NAME}`)
+    .collection("review");
 
   app.post("/addOrder", (req, res) => {
     const orderDetails = req.body;
@@ -26,7 +29,17 @@ client.connect((err) => {
       res.send(result.insertedCount > 0);
     });
   });
-
+  app.get("/getReview", (req, res) => {
+    reviewCollection.find({}).toArray((error, documents) => {
+      res.send(documents);
+    });
+  });
+  app.post("/addReview", (req, res) => {
+    const orderDetails = req.body;
+    reviewCollection.insertOne(orderDetails).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
   app.post("/dashboard", (req, res) => {
     const email = req.body.email;
     adminCollection.find({ email: email }).toArray((err, admins) => {
