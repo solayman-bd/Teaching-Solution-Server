@@ -23,6 +23,13 @@ client.connect((err) => {
     .db(`${process.env.DB_NAME}`)
     .collection("review");
 
+  app.post("/makeAdmin", (req, res) => {
+    const orderDetails = req.body;
+    adminCollection.insertOne(orderDetails).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
+
   app.post("/addOrder", (req, res) => {
     const orderDetails = req.body;
     orderCollection.insertOne(orderDetails).then((result) => {
