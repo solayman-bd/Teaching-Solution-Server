@@ -87,7 +87,28 @@ client.connect((err) => {
       }
     });
   });
+  app.patch("/update", (req, res) => {
+    const id = req.body.userId;
+    const status = req.body.status;
 
+    orderCollection
+      .updateOne(
+        { _id: ObjectID(id) },
+        {
+          $set: { status: status },
+        }
+      )
+      .then((result) => {
+        res.send(result.modifiedCount > 0);
+      });
+  });
+  app.delete("/delete/:id", (req, res) => {
+    servicesCollection
+      .deleteOne({ _id: ObjectID(req.params.id) })
+      .then((result) => {
+        res.send(result.deletedCount > 0);
+      });
+  });
   app.post("/isAdmin", (req, res) => {
     const email = req.body.email;
     adminCollection.find({ email: email }).toArray((err, admins) => {
