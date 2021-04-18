@@ -22,6 +22,9 @@ client.connect((err) => {
   const reviewCollection = client
     .db(`${process.env.DB_NAME}`)
     .collection("review");
+  const servicesCollection = client
+    .db(`${process.env.DB_NAME}`)
+    .collection("services");
 
   app.post("/makeAdmin", (req, res) => {
     const orderDetails = req.body;
@@ -41,9 +44,30 @@ client.connect((err) => {
       res.send(documents);
     });
   });
+  app.get("/getServices", (req, res) => {
+    servicesCollection.find({}).toArray((error, documents) => {
+      res.send(documents);
+    });
+  });
+  app.post("/chosenService", (req, res) => {
+    const chosenId = req.body.id;
+
+    servicesCollection
+      .find({ _id: ObjectID(chosenId) })
+      .toArray((error, document) => {
+        res.send(document);
+      });
+  });
   app.post("/addReview", (req, res) => {
     const orderDetails = req.body;
     reviewCollection.insertOne(orderDetails).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
+
+  app.post("/addServices", (req, res) => {
+    const orderDetails = req.body;
+    servicesCollection.insertOne(orderDetails).then((result) => {
       res.send(result.insertedCount > 0);
     });
   });
